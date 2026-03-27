@@ -1,11 +1,16 @@
 using Microsoft.AspNetCore.SignalR;
+using Perquacky.Api.Services;
 
 namespace Perquacky.Api.Hubs;
 
-public class PerquackyHub : Hub
+public class PerquackyHub(GameService gameService) : Hub
 {
-    public async Task SendMessage(string user, string message)
+    /// <summary>
+    /// Called by the client after connecting to join a game's SignalR group
+    /// and receive the current game state.
+    /// </summary>
+    public async Task JoinGame(string gameId, string playerId)
     {
-        await Clients.All.SendAsync("ReceiveMessage", user, message);
+        await gameService.AddToGroupAsync(Context.ConnectionId, gameId, playerId);
     }
 }

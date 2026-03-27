@@ -28,7 +28,7 @@ export function GameBoard() {
     async (word: string) => {
       if (!gameId || !turn) return;
       try {
-        await apiService.submitWord(gameId, turn.playerId, word);
+        await apiService.submitWord(gameId, turn.id, word);
       } catch {
         // rejection handled via SignalR WordRejected event
       }
@@ -36,9 +36,15 @@ export function GameBoard() {
     [gameId, turn]
   );
 
+  const handleEndTurn = useCallback(async () => {
+    if (!gameId || !turn) return;
+    await apiService.endTurn(gameId, turn.id);
+  }, [gameId, turn]);
+
   const handleTimerExpired = useCallback(async () => {
-    // Server is authoritative — client just signals readiness; server ends the turn
-  }, []);
+    if (!gameId || !turn) return;
+    await apiService.endTurn(gameId, turn.id);
+  }, [gameId, turn]);
 
   const handleStartGame = async () => {
     if (!gameId) return;
@@ -78,7 +84,11 @@ export function GameBoard() {
       <main style={styles.main}>
         {gameState.phase === 'lobby' && (
           <div style={styles.lobbyWaiting}>
-            <p>Waiting for players... ({gameState.players.length} joined)</p>
+            <p style={styles.joinCode}>Join code: <strong>{gameState.gameCode}</strong></p>
+            <p>Players joined: {gameState.players.length}</p>
+            <ul style={styles.playerList}>
+              {gameState.players.map((p) => <li key={p.id}>{p.name}</li>)}
+            </ul>
             <button style={styles.startButton} onClick={handleStartGame}>
               Start Game
             </button>
@@ -101,11 +111,16 @@ export function GameBoard() {
             <DiceTray dice={turn.dice} />
 
             {isMyTurn && (
-              <WordInput
-                onSubmit={handleWordSubmit}
-                disabled={!isMyTurn}
-                lastRejection={lastRejection}
-              />
+              <>
+                <WordInput
+                  onSubmit={handleWordSubmit}
+                  disabled={!isMyTurn}
+                  lastRejection={lastRejection}
+                />
+                <button style={styles.endTurnButton} onClick={handleEndTurn}>
+                  End Turn
+                </button>
+              </>
             )}
 
             {!isMyTurn && (
@@ -173,6 +188,19 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '1rem',
     marginTop: '4rem',
   },
+  joinCode: {
+    fontSize: '1.2rem',
+    background: '#ecf0f1',
+    padding: '0.5rem 1.5rem',
+    borderRadius: '8px',
+    letterSpacing: '0.1em',
+  },
+  playerList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+    textAlign: 'center' as const,
+  },
   startButton: {
     padding: '0.75rem 2rem',
     fontSize: '1.1rem',
@@ -186,6 +214,17 @@ const styles: Record<string, React.CSSProperties> = {
   waitingText: {
     color: '#7f8c8d',
     fontStyle: 'italic',
+  },
+  endTurnButton: {
+    alignSelf: 'flex-start',
+    padding: '0.6rem 1.5rem',
+    background: '#e74c3c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.95rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
   },
   loading: {
     display: 'flex',

@@ -12,6 +12,7 @@ const MOCK_PLAYER_ID = 'p1';
 
 const MOCK_STATE: GameState = {
   gameId: 'dev',
+  gameCode: 'TEST',
   phase: 'playing',
   round: 2,
   winnerId: null,
@@ -21,6 +22,7 @@ const MOCK_STATE: GameState = {
     { id: 'p3', name: 'Bob', totalScore: 750, isVulnerable: false },
   ],
   currentTurn: {
+    id: 'dev-turn-1',
     playerId: MOCK_PLAYER_ID,
     isActive: true,
     endsAt: new Date(Date.now() + 2.5 * 60 * 1000).toISOString(),

@@ -20,8 +20,8 @@ export function Lobby() {
       await signalRService.connect();
 
       if (mode === 'create') {
-        const { gameId } = await apiService.createGame(playerName);
-        navigate(`/game/${gameId}`);
+        const { gameId, playerId } = await apiService.createGame(playerName);
+        navigate(`/game/${gameId}`, { state: { playerId } });
       } else {
         const { gameId, playerId } = await apiService.joinGame(joinCode.trim(), playerName);
         navigate(`/game/${gameId}`, { state: { playerId } });

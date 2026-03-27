@@ -37,6 +37,7 @@ export interface Player {
 }
 
 export interface Turn {
+  id: string;
   playerId: string;
   dice: Die[];
   /** ISO UTC timestamp when the turn ends */
@@ -48,6 +49,7 @@ export interface Turn {
 
 export interface GameState {
   gameId: string;
+  gameCode: string;
   phase: GamePhase;
   players: Player[];
   currentTurn: Turn | null;

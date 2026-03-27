@@ -14,7 +14,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export interface CreateGameResponse {
   gameId: string;
-  joinCode: string;
+  code: string;
+  playerId: string;
 }
 
 export interface JoinGameResponse {
@@ -23,14 +24,14 @@ export interface JoinGameResponse {
 }
 
 export const apiService = {
-  createGame: (playerName: string) =>
+  createGame: (hostName: string) =>
     request<CreateGameResponse>('/games', {
       method: 'POST',
-      body: JSON.stringify({ playerName }),
+      body: JSON.stringify({ hostName }),
     }),
 
-  joinGame: (joinCode: string, playerName: string) =>
-    request<JoinGameResponse>(`/games/${joinCode}/join`, {
+  joinGame: (code: string, playerName: string) =>
+    request<JoinGameResponse>(`/games/${code}/join`, {
       method: 'POST',
       body: JSON.stringify({ playerName }),
     }),
